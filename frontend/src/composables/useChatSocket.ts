@@ -2,6 +2,7 @@ import { onUnmounted, ref, watch, type Ref } from 'vue'
 import { getAccessToken } from '@/api/client'
 import type { WsClientEvent, WsServerEvent } from '@/types'
 import { useChatsStore } from '@/stores/chats'
+import { useNotificationStore } from '@/stores/notifications'
 
 function wsUrl(chatId: string, token: string): string {
   const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
@@ -12,6 +13,7 @@ function wsUrl(chatId: string, token: string): string {
 export function useChatSocket(chatId: Ref<string | null>) {
   const connected = ref(false)
   const chats = useChatsStore()
+  const notifications = useNotificationStore()
   let socket: WebSocket | null = null
   let typingTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -44,6 +46,7 @@ export function useChatSocket(chatId: Ref<string | null>) {
     switch (event.type) {
       case 'message.new':
         chats.upsertMessage(event.payload)
+        notifications.notifyFromMessage(event.payload)
         break
       case 'message.deleted':
         chats.markDeleted(event.payload.chat, event.payload.id)

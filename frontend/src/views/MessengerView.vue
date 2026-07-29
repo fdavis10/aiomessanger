@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useChatsStore } from '@/stores/chats'
 import { useLocaleStore } from '@/stores/locale'
 import { useChatSocket } from '@/composables/useChatSocket'
+import { useInboxSocket } from '@/composables/useInboxSocket'
 import * as chatsApi from '@/api/chats'
 import ChatList from '@/components/ChatList.vue'
 import ChatWindow from '@/components/ChatWindow.vue'
@@ -25,6 +26,15 @@ const soonHint = ref<string | null>(null)
 
 const chatId = toRef(chats, 'activeChatId')
 const { connected, sendMessage, notifyTyping } = useChatSocket(chatId)
+
+const inboxEnabled = computed(() => auth.isAuthenticated)
+const membershipKey = computed(() =>
+  chats.chats
+    .map((c) => c.id)
+    .sort()
+    .join(','),
+)
+useInboxSocket(inboxEnabled, membershipKey)
 
 const chatOpen = computed(() => !!chats.activeChatId)
 

@@ -26,6 +26,50 @@ CLOSE_UNAUTHORIZED = 4001
 CLOSE_FORBIDDEN = 4003
 
 
+class InboxConsumer(AsyncJsonWebsocketConsumer):
+    """User-wide socket: joins all chat groups to receive message events for toasts."""
+
+    group_names: list[str]
+
+    async def connect(self) -> None:
+        user = self.scope.get("user")
+        if user is None or not user.is_authenticated:
+            await self.close(code=CLOSE_UNAUTHORIZED)
+            return
+
+        self.group_names = await self._member_group_names(user.id)
+        for name in self.group_names:
+            await self.channel_layer.group_add(name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, code: int) -> None:
+        for name in getattr(self, "group_names", []):
+            await self.channel_layer.group_discard(name, self.channel_name)
+
+    async def receive_json(self, content: dict[str, Any], **kwargs) -> None:
+        # Inbox is receive-only; chat actions go through ChatConsumer.
+        return
+
+    async def chat_event(self, event: dict[str, Any]) -> None:
+        # Skip typing/presence noise — only message lifecycle for notifications.
+        if event.get("event_type") not in {
+            "message.new",
+            "message.deleted",
+            "message.edited",
+        }:
+            return
+        await self.send_json(
+            {"type": event["event_type"], "payload": event["payload"]}
+        )
+
+    @database_sync_to_async
+    def _member_group_names(self, user_id: int) -> list[str]:
+        chat_ids = ChatMember.objects.filter(user_id=user_id).values_list(
+            "chat_id", flat=True
+        )
+        return [chat_group_name(str(cid)) for cid in chat_ids]
+
+
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     chat_id: str
     group_name: str

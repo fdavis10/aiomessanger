@@ -9,6 +9,7 @@ import ChoiceSheet from '@/components/ChoiceSheet.vue'
 import NavGlyph from '@/components/NavGlyph.vue'
 import { randomBannerStyle, renderGeneratedAvatarFile } from '@/utils/profileArt'
 import { mediaUrl } from '@/utils/mediaUrl'
+import NotificationSettings from '@/components/NotificationSettings.vue'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
@@ -16,7 +17,7 @@ const emit = defineEmits<{ close: [] }>()
 const auth = useAuthStore()
 const locale = useLocaleStore()
 
-type View = 'list' | 'account'
+type View = 'list' | 'account' | 'notifications'
 type EditField = 'name' | 'phone' | 'username' | 'bio' | null
 type ChoiceKind = 'banner' | 'avatar' | null
 
@@ -96,7 +97,7 @@ function onKey(ev: KeyboardEvent) {
     editField.value = null
     return
   }
-  if (view.value === 'account') {
+  if (view.value === 'account' || view.value === 'notifications') {
     view.value = 'list'
     return
   }
@@ -111,6 +112,10 @@ onUnmounted(() => {
 
 function openAccount() {
   view.value = 'account'
+}
+
+function openNotifications() {
+  view.value = 'notifications'
 }
 
 function startEdit(field: Exclude<EditField, null>) {
@@ -263,7 +268,7 @@ async function onAvatarFile(ev: Event) {
         >
           <header class="settings-panel__head">
             <button
-              v-if="view === 'account'"
+              v-if="view === 'account' || view === 'notifications'"
               type="button"
               class="settings-panel__icon settings-panel__icon--back"
               :aria-label="locale.t('back')"
@@ -272,7 +277,15 @@ async function onAvatarFile(ev: Event) {
               ←
             </button>
             <h2 class="settings-panel__title">
-              <SnapText :k="view === 'list' ? 'settingsTitle' : 'settingsAccountTitle'" />
+              <SnapText
+                :k="
+                  view === 'list'
+                    ? 'settingsTitle'
+                    : view === 'notifications'
+                      ? 'notifTitle'
+                      : 'settingsAccountTitle'
+                "
+              />
             </h2>
             <button
               type="button"
@@ -308,10 +321,9 @@ async function onAvatarFile(ev: Event) {
                 <NavGlyph name="profile" />
                 <span><SnapText k="settingsMyAccount" /></span>
               </button>
-              <button type="button" class="settings-nav__item is-muted" disabled>
+              <button type="button" class="settings-nav__item" @click="openNotifications">
                 <NavGlyph name="settings" />
                 <span><SnapText k="settingsNotifications" /></span>
-                <em><SnapText k="menuSoon" /></em>
               </button>
               <button type="button" class="settings-nav__item is-muted" disabled>
                 <NavGlyph name="settings" />
@@ -330,6 +342,9 @@ async function onAvatarFile(ev: Event) {
               </div>
             </nav>
           </div>
+
+          <!-- Notifications -->
+          <NotificationSettings v-else-if="view === 'notifications'" />
 
           <!-- My account -->
           <div v-else class="account-view">

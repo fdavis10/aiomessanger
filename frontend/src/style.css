@@ -1173,3 +1173,134 @@ html[data-theme-wipe='from-top']::view-transition-new(root) {
 .live-dot {
   color: var(--color-brand);
 }
+
+/* In-app message toasts (bottom-right) */
+.toast-stack {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 120;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.65rem;
+  width: min(22.5rem, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.app-toast {
+  position: relative;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 2rem 0.8rem 0.85rem;
+  border-radius: 0.95rem;
+  cursor: pointer;
+  background: color-mix(in srgb, #121820 90%, #2a3544);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
+  color: #f2f4f7;
+}
+
+[data-theme='light'] .app-toast {
+  background: color-mix(in srgb, #2a3340 94%, #111);
+}
+
+.app-toast__close {
+  position: absolute;
+  top: 0.28rem;
+  right: 0.35rem;
+  width: 1.45rem;
+  height: 1.45rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.app-toast__close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.app-toast__avatar {
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #041014;
+  background: linear-gradient(160deg, #3ec4d0, #00a8b8);
+}
+
+.app-toast__avatar.is-brand {
+  background: linear-gradient(160deg, #3ec4d0, #007f8c);
+}
+
+.app-toast__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.08);
+}
+
+.app-toast__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.app-toast__name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.app-toast__body {
+  margin: 0.18rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 450;
+  color: rgba(242, 244, 247, 0.88);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toast-pop-enter-active {
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.28s ease;
+}
+
+.toast-pop-leave-active {
+  transition:
+    transform 0.22s ease,
+    opacity 0.2s ease;
+}
+
+.toast-pop-enter-from {
+  opacity: 0;
+  transform: translateY(1.1rem) scale(0.96);
+}
+
+.toast-pop-leave-to {
+  opacity: 0;
+  transform: translateY(0.55rem) scale(0.98);
+}
+
+.toast-pop-move {
+  transition: transform 0.28s ease;
+}

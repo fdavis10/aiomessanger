@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
+import ToastNotifications from '@/components/ToastNotifications.vue'
 
 const theme = useThemeStore()
 onMounted(() => {
@@ -13,5 +14,6 @@ onMounted(() => {
 <template>
   <div class="app-shell">
     <RouterView />
+    <ToastNotifications />
   </div>
 </template>
